@@ -15,7 +15,9 @@ public class ZombieSpawner : MonoBehaviour
     {
         Transform randomSpawn = spawnPoints[Random.Range(0, spawnPoints.Length)];
 
-        GameObject zombie = Instantiate(zombiePrefab[Random.Range(0, zombiePrefab.Length)], randomSpawn.position, randomSpawn.rotation);
+        GameObject zombieType = zombiePrefab[Random.Range(0, zombiePrefab.Length)];
+
+        GameObject zombie = Instantiate(zombieType, randomSpawn.position, randomSpawn.rotation);
 
         ZombieAI zombieAI = zombie.GetComponent<ZombieAI>();
 
