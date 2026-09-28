@@ -26,30 +26,30 @@ public class WeaponManager : MonoBehaviour
     
     void Update()
     {
-        //CheckInputs();
+        CheckInputs();
     }
 
-    //void CheckInputs()
-    //{
-    //    if (Keyboard.current.digit1Key.wasPressedThisFrame)
-    //    {
-    //        EquipWeapon(0);
-    //    }
-    //    if (Keyboard.current.digit2Key.wasPressedThisFrame)
-    //    {
-    //        EquipWeapon(1);
-    //    }
+    void CheckInputs()
+    {
+        if (Keyboard.current.digit1Key.wasPressedThisFrame)
+        {
+            EquipWeapon(0);
+        }
+        if (Keyboard.current.digit2Key.wasPressedThisFrame)
+        {
+            EquipWeapon(1);
+        }
 
-    //    float scroll = Mouse.current.scroll.magnitude;
-    //    if (scroll > 0)
-    //    {
-    //        NextWeapon();
-    //    }
-    //    if (scroll < 0)
-    //    {
-    //        PreviousWeapon();
-    //    }
-    //}
+        float scroll = Mouse.current.scroll.ReadValue().y;
+        if (scroll > 0)
+        {
+            NextWeapon();
+        }
+        if (scroll < 0)
+        {
+            PreviousWeapon();
+        }
+    }
 
     public void EquipWeapon(int index)
     {
@@ -75,15 +75,15 @@ public class WeaponManager : MonoBehaviour
         TrySwitch(next);
     }
 
-    //private void PreviousWeapon()
-    //{
-    //    int prev = currentWeapon - 1;
-    //    if (prev < weapons.Length)
-    //    {
-    //        prev = weapons.Length - 1;
-    //    }
-    //    TrySwitch(prev);
-    //}
+    private void PreviousWeapon()
+    {
+        int prev = currentWeapon - 1;
+        if (prev < 0)
+        {
+            prev = weapons.Length - 1;
+        }
+        TrySwitch(prev);
+    }
 
     private void TrySwitch(int index)
     {

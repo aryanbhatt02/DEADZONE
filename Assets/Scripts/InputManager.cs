@@ -7,16 +7,19 @@ using UnityEngine.UI;
 public class InputManager : MonoBehaviour
 {
     public static InputManager Instance;
-    public PlayerInputs playerInput;
-
-    public Joystick joystick;
-    public Vector2 moveInput;
-    public bool Running = false;
-
-    public bool firing = false;
-    public WeaponManager weaponManager;
 
     [SerializeField] Image runOnImage;
+
+    public PlayerInputs playerInput;
+    public WeaponManager weaponManager;
+
+    public Joystick joystick;
+    public Vector2 moveInput;            
+
+    public bool Running = false;
+    private bool mobileRunning = false;
+    public bool firing = false;
+    private bool mobileFiring = false;
 
     private void Awake()
     {
@@ -29,8 +32,8 @@ public class InputManager : MonoBehaviour
             Destroy(this);
         }
 
-        //playerInput = new PlayerInputs();
-        //playerInput.Enable();
+        playerInput = new PlayerInputs();
+        playerInput.Enable();
     }
 
     void Start()
@@ -41,7 +44,28 @@ public class InputManager : MonoBehaviour
     
     void Update()
     {
-        moveInput = new Vector2(joystick.Horizontal, joystick.Vertical);
+        Vector2 keyboardInput = playerInput.Player.Move.ReadValue<Vector2>();
+        Vector2 joystickInput = new Vector2(joystick.Horizontal, joystick.Vertical);
+
+        if(keyboardInput.magnitude > 0.01f)
+        {
+            moveInput = keyboardInput;
+        }
+        else
+        {
+            moveInput = joystickInput;
+        }
+
+        if (playerInput.Player.Sprint.IsPressed())
+        {
+            Running = true;
+        }
+        else
+        {
+            Running = mobileRunning;
+        }
+
+        firing = mobileFiring || playerInput.Player.Attack.IsPressed();
     }
 
     //public void OnDisable()
@@ -59,12 +83,13 @@ public class InputManager : MonoBehaviour
         {
             runOnImage.gameObject.SetActive(false);
         }
-        Running = !Running;
+        mobileRunning = !mobileRunning;
+        Running = mobileRunning;
     }
 
     public void HandleFire(bool value)
     {
-        firing = value;
+        mobileFiring = value;
     }
 
     public void Reload()

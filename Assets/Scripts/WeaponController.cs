@@ -55,7 +55,7 @@ public class WeaponController : MonoBehaviour
         {
             if (!playerController.IsRunning)
             {
-                if(InputManager.Instance.firing && currentBullets <= 0)
+                if(InputManager.Instance.firing && currentBullets <= 0 && !reloding)
                 {
                     AudioManager.instance.PlayEmptyGunSound();
                 }
@@ -67,8 +67,15 @@ public class WeaponController : MonoBehaviour
             }
             
         }
+        // -----------------------
+        // FOR PC WEAPON RELOAD
+        if (Keyboard.current.rKey.wasPressedThisFrame)
+        {
+            WeaponReload();
+        }
+        // -----------------------
 
-        
+        AutoReloadWeapon();
 
         animator.SetBool("Walk", playerController.IsWalking);
         animator.SetBool("Run", playerController.IsRunning);
@@ -77,6 +84,8 @@ public class WeaponController : MonoBehaviour
         //animator.SetBool("Aim", aiming);        
     }
 
+    //-------------------------------------------------
+    // >>>>>>>>-------- FOR ANDROID --------<<<<<<<<<<<
     public void WeaponReload()
     {
         if (!reloding && totalBullets > 0 && currentBullets < bulletsInMag)
@@ -85,7 +94,15 @@ public class WeaponController : MonoBehaviour
             animator.SetTrigger("Reload");
         }       
     }
-
+    //-------------------------------------------------
+     
+    public void AutoReloadWeapon()
+    {
+        if (!reloding && totalBullets > 0 && currentBullets == 0)
+        {
+            WeaponReload();
+        }
+    }
     public void AddBullets()
     {
         reloding = false;
@@ -163,6 +180,5 @@ public class WeaponController : MonoBehaviour
     private void HandleAim(InputAction.CallbackContext context)
     {
         aiming = context.performed;
-    }
-
+    }    
 }
