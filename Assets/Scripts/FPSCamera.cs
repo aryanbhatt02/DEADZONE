@@ -19,7 +19,18 @@ public class FPSCamera : MonoBehaviour
     
     void Update()
     {
-        Vector2 mouse = DragArea.swipeDelta;
+        Vector2 mouse;
+
+        // //>>>>>>>>>>--------- FOR Android ----------<<<<<<<<<<<<<<<
+        if (Application.isMobilePlatform)
+        {
+            mouse = DragArea.swipeDelta;
+        }
+        else
+        {
+            //>>>>>>>>>>--------- FOR PC ----------<<<<<<<<<<<<<<<
+            mouse = InputManager.Instance.playerInput.Player.Look.ReadValue<Vector2>();
+        }
 
         float mouseX = mouse.x * senstivity * Time.deltaTime;
         float mouseY = mouse.y * senstivity * Time.deltaTime;
