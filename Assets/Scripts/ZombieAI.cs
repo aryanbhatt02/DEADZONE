@@ -2,14 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Pool;
 
 public class ZombieAI : MonoBehaviour
 {
+    public IObjectPool<ZombieAI> pool;
 
     public Transform target;
-
     public bool runner;
-
     public CampArea homeArea;
 
     [SerializeField] float walkSpeed = 4f;
@@ -40,25 +40,49 @@ public class ZombieAI : MonoBehaviour
 
     Animator anim;
 
-    private void Start()
+    private void Awake()
     {
         currentHealth = maxHealth;
 
         anim = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();        
+        
+
+        source = GetComponent<AudioSource>();                
+    }
+    public void SetupZombie(bool isRunner, CampArea area, Transform newTarget)
+    {
+        runner = isRunner;
+        homeArea = area;
+        target = newTarget;
+
+        currentHealth = maxHealth;
+        dead = false;
+        hit = false;
+
+        attackTime = Time.time + attackCooldown;
+
+        CapsuleCollider collider = GetComponent<CapsuleCollider>();
+        collider.enabled = true;
+
+        agent.isStopped = false;
+        agent.ResetPath();
+        agent.speed = runner ? runSpeed : walkSpeed;
+        agent.stoppingDistance = attackRange;
         agent.SetDestination(target.position);
 
-        agent.speed = runner? runSpeed: walkSpeed;
-        agent.stoppingDistance = attackRange;
+        anim.Rebind();
+        anim.Update(0f);
+        anim.SetBool("Death", false);
+        anim.SetBool("Run", runner);
+        anim.SetFloat("Speed", 0f);
 
-        source = GetComponent<AudioSource>();
-
+        source.Stop();
         source.clip = idleSfx;
         source.loop = true;
         source.volume = 1f;
-        source.Play();        
+        source.Play();
     }
-
     void Update()
     {
         if (dead) return;
@@ -99,8 +123,14 @@ public class ZombieAI : MonoBehaviour
         MoneyManager.instance.AddMoney(rewardMoney);
         KillCount.instance.PlusKillCount(addKillCount);
         GetComponent<CapsuleCollider>().enabled = false;
-        anim.SetBool("Death", true);
-        Destroy(gameObject, 5f);
+        anim.SetBool("Death", true);        
+        StartCoroutine(ReturnToPool());
+    }
+
+    IEnumerator ReturnToPool()
+    {
+        yield return new WaitForSeconds(5f);
+        pool.Release(this);
     }
 
     public void TakeDamage(int damage)
